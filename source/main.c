@@ -2,7 +2,15 @@
 #include <stdbool.h>
 #include <getopt.h>
 
-int main(int argc, char *argv[]) {
+void print_usage(char *argv[]){
+    printf("Usage: %s -n -f <database file>\n",argv[0]);
+    printf("\t -n - create new database file\n");
+    printf("\t -f -  (required)\n");
+    return;
+}
+    
+
+int main (int argc, char *argv[]){    
     char *filepath = NULL;
     bool newfile = false;
     int c;
@@ -18,11 +26,18 @@ int main(int argc, char *argv[]) {
                 break;
             
             case '?':
-                printf("Unkown option -%c\n", c);
+                printf("\nUnkown option -%c\n", c);
                 break;
             default:
                 return -1;
         }
+    }
+    if (filepath == NULL){
+        printf("Filepath is a required arguement\n\n");
+        print_usage(argv);
+
+        return 0;
+
     }
     printf("Newfile: %d\n", newfile);
     printf("Filepath: %s\n", filepath);
