@@ -3,6 +3,7 @@
 #include <getopt.h>
 
 #include "file.h"
+#include "parse.h"
 
 void print_usage(char *argv[]){
     printf("Usage: %s -n -f <database file>\n",argv[0]);
@@ -18,6 +19,7 @@ int main (int argc, char *argv[]){
     int c;
 
     int dbfd = -1;
+    struct dbheader_t *dbhdr= NULL;
 
     while ((c = getopt(argc, argv, "nf:")) != -1){
         switch (c) {
@@ -50,16 +52,26 @@ int main (int argc, char *argv[]){
             printf("Unable to create database file\n");
             return -1;
         }
+        if (create_db_header(dbfd,&dbhdr) == -1){
+            printf("Failed to Create database header\n");
+            return -1;
+        }
     } else {
         dbfd = open_db_file(filepath);
         if(dbfd == 1) {
             printf("Unable to open database file\n");
             return -1;
         }
+        if (validate_db_header(dbfd,&dbhdr) == -1){
+            printf("Failure to validate database header\n");
+            return -1;
+        }
     }
 
     printf("Newfile: %d\n", newfile);
     printf("Filepath: %s\n", filepath);
+
+    output_file(dbfd,dbhdr);
 
     return 0;
 
