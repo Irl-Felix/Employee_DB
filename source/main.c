@@ -4,6 +4,7 @@
 
 #include "file.h"
 #include "parse.h"
+#include "common.h"
 
 void print_usage(char *argv[]){
     printf("Usage: %s -n -f <database file>\n",argv[0]);
@@ -35,14 +36,14 @@ int main (int argc, char *argv[]){
                 printf("\nUnkown option -%c\n", c);
                 break;
             default:
-                return -1;
+                return STATUS_ERROR;
         }
     }
     if (filepath == NULL){
         printf("Filepath is a required arguement\n\n");
         print_usage(argv);
 
-        return 0;
+        return STATUS_SUCCESS;
 
     }
 
@@ -50,21 +51,21 @@ int main (int argc, char *argv[]){
         dbfd = create_db_file(filepath); 
         if(dbfd == 1) {
             printf("Unable to create database file\n");
-            return -1;
+            return STATUS_ERROR;
         }
         if (create_db_header(dbfd,&dbhdr) == -1){
             printf("Failed to Create database header\n");
-            return -1;
+            return STATUS_ERROR;
         }
     } else {
         dbfd = open_db_file(filepath);
         if(dbfd == 1) {
             printf("Unable to open database file\n");
-            return -1;
+            return STATUS_ERROR;
         }
         if (validate_db_header(dbfd,&dbhdr) == -1){
             printf("Failure to validate database header\n");
-            return -1;
+            return STATUS_ERROR;
         }
     }
 
@@ -73,6 +74,6 @@ int main (int argc, char *argv[]){
 
     output_file(dbfd,dbhdr);
 
-    return 0;
+    return STATUS_SUCCESS;
 
 }
