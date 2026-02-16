@@ -18,6 +18,7 @@ void print_usage(char *argv[]){
 int main (int argc, char *argv[]){    
     char *filepath = NULL;
     char *addstring = NULL;
+    char *updatestring = NULL;
     bool newfile = false;
     bool list = false;
     int c;
@@ -27,7 +28,7 @@ int main (int argc, char *argv[]){
     struct employee_t *employees = NULL;
 
 
-    while ((c = getopt(argc, argv, "nf:a:l")) != -1){
+    while ((c = getopt(argc, argv, "nf:a:u:l")) != -1){
         switch (c) {
             case 'n':
                 newfile = true;
@@ -39,6 +40,10 @@ int main (int argc, char *argv[]){
                 
             case 'a':
                 addstring = optarg;
+                break;
+            
+            case 'u':
+                updatestring = optarg;
                 break;
 
             case 'l':
@@ -90,12 +95,16 @@ int main (int argc, char *argv[]){
     if (addstring) {
         add_employee(dbhdr, &employees,addstring);
     }
+    
+    if (updatestring) {
+        update_employee_by_name(dbhdr, employees, updatestring);
+    }
 
     if (list) {
         list_employees(dbhdr, employees);
     }
-    
 
+    
     // printf("Newfile: %d\n", newfile);
     // printf("Filepath: %s\n", filepath);
 

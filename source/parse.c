@@ -40,7 +40,7 @@ int add_employee(struct dbheader_t *dbhdr, struct employee_t **employees, char *
 
 
     struct employee_t *e = *employees; 
-    e = realloc(e, sizeof(struct employee_t) * dbhdr->count+1);
+    e = realloc(e, sizeof(struct employee_t) * (dbhdr->count + 1));
     if (e == NULL){
         return STATUS_ERROR;
     }
@@ -66,7 +66,7 @@ int read_employees(int fd, struct dbheader_t *dbhdr, struct employee_t **employe
     int count = dbhdr->count;
 
     struct employee_t *employees = calloc(count, sizeof(struct employee_t));
-    if (employees == -1){
+    if (employees == NULL){
         printf("Malloc failed\n");
         return STATUS_ERROR;
     }
@@ -81,31 +81,61 @@ int read_employees(int fd, struct dbheader_t *dbhdr, struct employee_t **employe
     return STATUS_SUCCESS;
 }
 
-void output_file(int fd, struct dbheader_t *dbhdr,struct employee_t *employees){
-    if (fd < 0){
-        printf("Got a bad FD from the user\n");
-        return;
+int update_employee_by_name(struct dbheader_t *dbhdr,struct employee_t *employees,char *updatestring){
+    if (dbhdr == NULL || employees == NULL || updatestring == NULL)
+        return STATUS_ERROR;
+
+    char *name = strtok(updatestring, ",");
+    char *hours_str = strtok(NULL, ",");
+
+    if (!name || !hours_str) {
+        printf("Invalid format. Use name,hours\n");
+        return STATUS_ERROR;
     }
+
+    int new_hours = atoi(hours_str);
+
+    if (new_hours < 0)
+        return STATUS_ERROR;
+
+    for (int i = 0; i < dbhdr->count; i++) {
+        if (strcmp(employees[i].name, name) == 0) {
+            employees[i].hours = new_hours;
+            return STATUS_SUCCESS;
+        }
+    }
+
+    printf("Employee not found\n");
+    return STATUS_ERROR;
+}
+
+
+void output_file(int fd,
+                 struct dbheader_t *dbhdr,
+                 struct employee_t *employees)
+{
+    if (fd < 0)
+        return;
 
     int realcount = dbhdr->count;
 
-    dbhdr->version = htons(dbhdr->version);
-    dbhdr->count = htons(dbhdr->count);
-    dbhdr->magic = htonl(dbhdr->magic);
-    dbhdr->filesize = htonl(sizeof(struct dbheader_t) + (sizeof(struct employee_t) * realcount));
+    struct dbheader_t tmp = *dbhdr;
 
-    lseek(fd, 0,SEEK_SET);
+    tmp.version  = htons(tmp.version);
+    tmp.count    = htons(tmp.count);
+    tmp.magic    = htonl(tmp.magic);
+    tmp.filesize = htonl(sizeof(struct dbheader_t) +
+                         sizeof(struct employee_t) * realcount);
 
-    write(fd,dbhdr,sizeof(struct dbheader_t));
+    lseek(fd, 0, SEEK_SET);
 
-    int i =0;
-    for (;i < realcount;i++){
-        employees[i].hours = htonl(employees[i].hours);
-        write(fd, &employees[i],sizeof(struct employee_t));
+    write(fd, &tmp, sizeof(tmp));
 
+    for (int i = 0; i < realcount; i++) {
+        struct employee_t tmp_emp = employees[i];
+        tmp_emp.hours = htonl(tmp_emp.hours);
+        write(fd, &tmp_emp, sizeof(tmp_emp));
     }
-
-    return;
 }
 
 int validate_db_header(int fd, struct dbheader_t **headerOut){
@@ -116,7 +146,7 @@ int validate_db_header(int fd, struct dbheader_t **headerOut){
 
     struct dbheader_t *header = calloc(1, sizeof(struct dbheader_t ));
 
-    if (header == -1) {
+    if (header == NULL) {
         printf("Malloc failed to create a db header\n");
         return STATUS_ERROR;
     }
@@ -154,7 +184,7 @@ int validate_db_header(int fd, struct dbheader_t **headerOut){
 
 int create_db_header(int fd, struct dbheader_t **headerOut){
     struct dbheader_t *header = calloc(1,sizeof(struct dbheader_t));
-    if (header == -1){
+    if (header == NULL){
         printf("Malloc failed to create db header\n");
         return STATUS_ERROR;
     }
@@ -167,4 +197,3 @@ int create_db_header(int fd, struct dbheader_t **headerOut){
 
     return STATUS_SUCCESS;
 }
-
