@@ -21,6 +21,7 @@ int validate_db_header(int fd, struct dbheader_t **headerOut);
 void list_employees(struct dbheader_t *dbhdr,struct employee_t *employees);
 int read_employees(int fd, struct dbheader_t *, struct employee_t **employeesOut);
 int add_employee(struct dbheader_t *dbhdr,struct employee_t **employees,char *addstring);
+int update_employee(struct dbheader_t *dbhdr,struct employee_t **employees,char *addstring);
 void output_file(int fd, struct dbheader_t *, struct employee_t *employees);
 
 #endif

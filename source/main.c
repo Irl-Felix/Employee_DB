@@ -52,6 +52,7 @@ int main (int argc, char *argv[]){
                 return STATUS_ERROR;
         }
     }
+
     if (filepath == NULL){
         printf("Filepath is a required arguement\n\n");
         print_usage(argv);
