@@ -130,8 +130,12 @@ int update_employee_by_name(struct dbheader_t *dbhdr,struct employee_t *employee
     return STATUS_ERROR;
 }
 
-int remove_employee_by_name(struct dbheader_t *dbhdr,struct employee_t **employees, char *name){
-    if (dbhdr == NULL || employees == NULL || *employees == NULL || name == NULL){
+int remove_employee_by_name(struct dbheader_t *dbhdr,
+                            struct employee_t **employees,
+                            char *name)
+{
+    if (dbhdr == NULL || employees == NULL || *employees == NULL || name == NULL)
+    {
         return STATUS_ERROR;
     }
 
@@ -156,25 +160,25 @@ int remove_employee_by_name(struct dbheader_t *dbhdr,struct employee_t **employe
         arr[i] = arr[i + 1];
     }
 
-    dbhdr->count--;
-
-    if (dbhdr->count == 0) {
+    if (count - 1 == 0) {
         free(arr);
         *employees = NULL;
+        dbhdr->count = 0;
         return STATUS_SUCCESS;
     }
 
-    struct employee_t *tmp = realloc(arr, sizeof(struct employee_t) * dbhdr->count);
+    struct employee_t *tmp =
+        realloc(arr, sizeof(struct employee_t) * (count - 1));
 
-    if (!tmp) {
+    if (tmp == NULL) {
         return STATUS_ERROR;
     }
 
     *employees = tmp;
+    dbhdr->count = count - 1;
 
     return STATUS_SUCCESS;
 }
-
 
 void output_file(int fd, struct dbheader_t *dbhdr, struct employee_t *employees) {
     if (fd < 0) {
