@@ -15,7 +15,7 @@ void list_employees(struct dbheader_t *dbhdr,struct employee_t *employees){
         return;
     }
 
-    for (int i = 0; i < dbhdr->count; i++){
+    for (unsigned int i = 0; i < dbhdr->count; i++){
         printf("Employee %d\n", i);
         printf("\tName: %s\n", employees[i].name);
         printf("\tAddress: %s\n", employees[i].address);
@@ -41,7 +41,6 @@ int add_employee(struct dbheader_t *dbhdr,struct employee_t **employees, char *a
     char *hours = strtok(NULL, ",");
     if (hours == NULL) return STATUS_ERROR;
 
-    /* realloc handles NULL correctly */
     struct employee_t *new_array = realloc(*employees, sizeof(struct employee_t) * (dbhdr->count + 1));
 
     if (new_array == NULL) {
@@ -73,7 +72,7 @@ int read_employees(int fd, struct dbheader_t *dbhdr, struct employee_t **employe
         return STATUS_ERROR;
     }
 
-    int count = dbhdr->count;
+    unsigned int count = dbhdr->count;
 
     if (count == 0) {
         *employeesOut = NULL;
@@ -92,7 +91,7 @@ int read_employees(int fd, struct dbheader_t *dbhdr, struct employee_t **employe
         return STATUS_ERROR;
     }
 
-    for (int i = 0; i <count;i++){
+    for (unsigned int i = 0; i < count;i++){
         employees[i].hours = ntohl(employees[i].hours);
     }
 
@@ -119,7 +118,7 @@ int update_employee_by_name(struct dbheader_t *dbhdr,struct employee_t *employee
     if (new_hours < 0)
         return STATUS_ERROR;
 
-    for (int i = 0; i < dbhdr->count; i++) {
+    for (unsigned int i = 0; i < dbhdr->count; i++) {
         if (strcmp(employees[i].name, name) == 0) {
             employees[i].hours = new_hours;
             return STATUS_SUCCESS;
@@ -130,9 +129,7 @@ int update_employee_by_name(struct dbheader_t *dbhdr,struct employee_t *employee
     return STATUS_ERROR;
 }
 
-int remove_employee_by_name(struct dbheader_t *dbhdr,
-                            struct employee_t **employees,
-                            char *name)
+int remove_employee_by_name(struct dbheader_t *dbhdr,struct employee_t **employees,char *name)
 {
     if (dbhdr == NULL || employees == NULL || *employees == NULL || name == NULL)
     {
@@ -140,11 +137,11 @@ int remove_employee_by_name(struct dbheader_t *dbhdr,
     }
 
     struct employee_t *arr = *employees;
-    int count = dbhdr->count;
+    unsigned int count = dbhdr->count;
 
     int index = -1;
 
-    for (int i = 0; i < count; i++) {
+    for (unsigned int i = 0; i < count; i++) {
         if (strcmp(arr[i].name, name) == 0) {
             index = i;
             break;
@@ -156,7 +153,7 @@ int remove_employee_by_name(struct dbheader_t *dbhdr,
         return STATUS_ERROR;
     }
 
-    for (int i = index; i < count - 1; i++) {
+    for (unsigned int i = index; i < count - 1; i++) {
         arr[i] = arr[i + 1];
     }
 
@@ -167,8 +164,7 @@ int remove_employee_by_name(struct dbheader_t *dbhdr,
         return STATUS_SUCCESS;
     }
 
-    struct employee_t *tmp =
-        realloc(arr, sizeof(struct employee_t) * (count - 1));
+    struct employee_t *tmp = realloc(arr, sizeof(struct employee_t) * (count - 1));
 
     if (tmp == NULL) {
         return STATUS_ERROR;
@@ -262,7 +258,7 @@ int validate_db_header(int fd, struct dbheader_t **headerOut){
     return STATUS_SUCCESS;
 }
 
-int create_db_header(int fd, struct dbheader_t **headerOut){
+int create_db_header(struct dbheader_t **headerOut){
     struct dbheader_t *header = calloc(1,sizeof(struct dbheader_t));
     if (header == NULL){
         printf("Malloc failed to create db header\n");
