@@ -113,8 +113,18 @@ int main (int argc, char *argv[]){
     }
 
     
-    // printf("Newfile: %d\n", newfile);
-    // printf("Filepath: %s\n", filepath);
+
+    if (employees != NULL) {
+        free(employees);
+    }
+
+    if (dbhdr != NULL) {
+        free(dbhdr);
+    }
+
+    if (dbfd >= 0) {
+        close(dbfd);
+    }
 
     output_file(dbfd,dbhdr,employees);
 
