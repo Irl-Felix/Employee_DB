@@ -109,13 +109,56 @@ int update_employee_by_name(struct dbheader_t *dbhdr,struct employee_t *employee
     return STATUS_ERROR;
 }
 
+int remove_employee_by_name(struct dbheader_t *dbhdr,struct employee_t **employees, char *name){
+    if (dbhdr == NULL || employees == NULL || *employees == NULL || name == NULL){
+        return STATUS_ERROR;
+    }
 
-void output_file(int fd,
-                 struct dbheader_t *dbhdr,
-                 struct employee_t *employees)
-{
-    if (fd < 0)
+    struct employee_t *arr = *employees;
+    int count = dbhdr->count;
+
+    int index = -1;
+
+    for (int i = 0; i < count; i++) {
+        if (strcmp(arr[i].name, name) == 0) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) {
+        printf("Employee not found\n");
+        return STATUS_ERROR;
+    }
+
+    for (int i = index; i < count - 1; i++) {
+        arr[i] = arr[i + 1];
+    }
+
+    dbhdr->count--;
+
+    if (dbhdr->count == 0) {
+        free(arr);
+        *employees = NULL;
+        return STATUS_SUCCESS;
+    }
+
+    struct employee_t *tmp = realloc(arr, sizeof(struct employee_t) * dbhdr->count);
+
+    if (!tmp) {
+        return STATUS_ERROR;
+    }
+
+    *employees = tmp;
+
+    return STATUS_SUCCESS;
+}
+
+
+void output_file(int fd, struct dbheader_t *dbhdr, struct employee_t *employees) {
+    if (fd < 0) {
         return;
+    }
 
     int realcount = dbhdr->count;
 
@@ -124,8 +167,7 @@ void output_file(int fd,
     tmp.version  = htons(tmp.version);
     tmp.count    = htons(tmp.count);
     tmp.magic    = htonl(tmp.magic);
-    tmp.filesize = htonl(sizeof(struct dbheader_t) +
-                         sizeof(struct employee_t) * realcount);
+    tmp.filesize = htonl(sizeof(struct dbheader_t) + sizeof(struct employee_t) * realcount);
 
     lseek(fd, 0, SEEK_SET);
 
@@ -135,6 +177,12 @@ void output_file(int fd,
         struct employee_t tmp_emp = employees[i];
         tmp_emp.hours = htonl(tmp_emp.hours);
         write(fd, &tmp_emp, sizeof(tmp_emp));
+    }
+
+    off_t new_size = sizeof(struct dbheader_t) + sizeof(struct employee_t) * realcount;
+
+    if (ftruncate(fd, new_size) == -1) {
+        perror("ftruncate");
     }
 }
 
