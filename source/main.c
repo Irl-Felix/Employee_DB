@@ -72,7 +72,7 @@ int main (int argc, char *argv[]){
 
     if(newfile){
         dbfd = create_db_file(filepath); 
-        if(dbfd == 1) {
+        if(dbfd < 0) {
             printf("Unable to create database file\n");
             return STATUS_ERROR;
         }
@@ -82,7 +82,7 @@ int main (int argc, char *argv[]){
         }
     } else {
         dbfd = open_db_file(filepath);
-        if(dbfd == 1) {
+        if(dbfd < 0) {
             printf("Unable to open database file\n");
             return STATUS_ERROR;
         }
