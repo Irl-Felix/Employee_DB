@@ -196,12 +196,18 @@ void output_file(int fd, struct dbheader_t *dbhdr, struct employee_t *employees)
 
     lseek(fd, 0, SEEK_SET);
 
-    write(fd, &tmp, sizeof(tmp));
+    if (write(fd, &tmp, sizeof(tmp)) != sizeof(tmp)) {
+        perror("write header");
+        return;
+    }
 
     for (int i = 0; i < realcount; i++) {
         struct employee_t tmp_emp = employees[i];
         tmp_emp.hours = htonl(tmp_emp.hours);
-        write(fd, &tmp_emp, sizeof(tmp_emp));
+        if (write(fd, &tmp_emp, sizeof(tmp_emp)) != sizeof(tmp_emp)) {
+            perror("write employee");
+            return;
+        }
     }
 
     off_t new_size = sizeof(struct dbheader_t) + sizeof(struct employee_t) * realcount;
