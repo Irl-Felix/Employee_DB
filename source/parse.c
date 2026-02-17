@@ -101,8 +101,10 @@ int read_employees(int fd, struct dbheader_t *dbhdr, struct employee_t **employe
 }
 
 int update_employee_by_name(struct dbheader_t *dbhdr,struct employee_t *employees,char *updatestring){
-    if (dbhdr == NULL || employees == NULL || updatestring == NULL)
+    if (dbhdr == NULL || employees == NULL || updatestring == NULL || dbhdr->count == 0 || updatestring == NULL)
+    {
         return STATUS_ERROR;
+    }
 
     char *name = strtok(updatestring, ",");
     char *hours_str = strtok(NULL, ",");
