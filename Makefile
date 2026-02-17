@@ -13,8 +13,17 @@ clean:
 	rm -f bin/*
 	rm -f *.db
 
-$(TARGET): $(OBJ)
-	gcc -o $@ $?
+# Ensure bin directory exists before linking
+$(TARGET): $(OBJ) | bin
+	gcc -o $@ $^
 
-obj/%.o : source/%.c
+# Ensure obj directory exists before compiling
+obj/%.o : source/%.c | obj
 	gcc -c $< -o $@ -Iinclude
+
+# Directory creation rules
+bin:
+	mkdir -p bin
+
+obj:
+	mkdir -p obj
