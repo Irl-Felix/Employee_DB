@@ -21,38 +21,44 @@ void list_employees(struct dbheader_t *dbhdr,struct employee_t *employees){
 
 }
 
-int add_employee(struct dbheader_t *dbhdr, struct employee_t **employees, char *addstring){
+int add_employee(struct dbheader_t *dbhdr,struct employee_t **employees, char *addstring) {
     printf("%s\n", addstring);
 
-    if (NULL == dbhdr) return STATUS_ERROR;
-    if (NULL == employees) return STATUS_ERROR;
-    if (NULL == *employees) return STATUS_ERROR;
-    if (NULL == addstring) return STATUS_ERROR;
+    if (dbhdr == NULL) return STATUS_ERROR;
+    if (employees == NULL) return STATUS_ERROR;
+    if (addstring == NULL) return STATUS_ERROR;
 
     char *name = strtok(addstring, ",");
-    if (NULL == name) return STATUS_ERROR;
+    if (name == NULL) return STATUS_ERROR;
 
     char *addr = strtok(NULL, ",");
-    if (NULL == addr) return STATUS_ERROR;
+    if (addr == NULL) return STATUS_ERROR;
 
     char *hours = strtok(NULL, ",");
-    if (NULL == hours) return STATUS_ERROR;
+    if (hours == NULL) return STATUS_ERROR;
 
+    /* realloc handles NULL correctly */
+    struct employee_t *new_array = realloc(*employees, sizeof(struct employee_t) * (dbhdr->count + 1));
 
-    struct employee_t *e = *employees; 
-    e = realloc(e, sizeof(struct employee_t) * (dbhdr->count + 1));
-    if (e == NULL){
+    if (new_array == NULL) {
         return STATUS_ERROR;
     }
 
+    *employees = new_array;
+
+    int index = dbhdr->count;
+
+    strncpy((*employees)[index].name,name,sizeof((*employees)[index].name) - 1);
+    
+    (*employees)[index].name[sizeof((*employees)[index].name) - 1] = '\0';
+
+    strncpy((*employees)[index].address,addr,sizeof((*employees)[index].address) - 1);
+
+    (*employees)[index].address[sizeof((*employees)[index].address) - 1] = '\0';
+
+    (*employees)[index].hours = atoi(hours);
+
     dbhdr->count++;
-
-    strncpy(e[dbhdr->count - 1].name,name,sizeof(e[dbhdr->count - 1].name));
-    strncpy(e[dbhdr->count - 1].address,addr,sizeof(e[dbhdr->count - 1].address));
-
-    e[dbhdr->count-1].hours = atoi(hours);
-
-    *employees = e;
 
     return STATUS_SUCCESS;
 }
