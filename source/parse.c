@@ -71,6 +71,11 @@ int read_employees(int fd, struct dbheader_t *dbhdr, struct employee_t **employe
 
     int count = dbhdr->count;
 
+    if (count == 0) {
+        *employeesOut = NULL;
+        return STATUS_SUCCESS;
+    }
+
     struct employee_t *employees = calloc(count, sizeof(struct employee_t));
     if (employees == NULL){
         printf("Malloc failed\n");
