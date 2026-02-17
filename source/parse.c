@@ -76,10 +76,14 @@ int read_employees(int fd, struct dbheader_t *dbhdr, struct employee_t **employe
         printf("Malloc failed\n");
         return STATUS_ERROR;
     }
-    read(fd,employees,count*sizeof(struct employee_t));
+    ssize_t bytes = read(fd, employees, count * sizeof(struct employee_t));
 
-    int i = 0;
-    for (; i <count;i++){
+    if (bytes != count * sizeof(struct employee_t)) {
+        free(employees);
+        return STATUS_ERROR;
+    }
+
+    for (int i = 0; i <count;i++){
         employees[i].hours = ntohl(employees[i].hours);
     }
 
