@@ -9,20 +9,20 @@ CFLAGS = -Wall -Wextra -g -Iinclude
 ASAN_FLAGS = -fsanitize=address -fno-omit-frame-pointer
 
 run: clean default
-	./$(TARGET) -f mynewdb.db -n
-	./$(TARGET) -f mynewdb.db -a "Maxwell,Front Street,10000"
-	./$(TARGET) -f mynewdb.db -a "Emily,Canada Estate,7009"
+	./$(TARGET) -f employee.db -n
+	./$(TARGET) -f employee.db -a "Maxwell,Front Street,1000"
+	./$(TARGET) -f employee.db -a "Emily,Canada Estate,200"
 
 default: $(TARGET)
 
-# 🔹 Normal Build
+# Normal Build
 $(TARGET): $(OBJ) | bin
 	gcc -o $@ $^
 
 obj/%.o: source/%.c | obj
 	gcc $(CFLAGS) -c $< -o $@
 
-# 🔹 ASan Build
+# ASan Build
 asan: $(TARGET_ASAN)
 
 $(TARGET_ASAN): $(OBJ_ASAN) | bin
